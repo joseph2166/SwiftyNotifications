@@ -26,7 +26,7 @@ extension Notification.Name
     }
 }
 
-extension Notification.Name.TypeSafe
+public extension Notification.Name.TypeSafe
 {
     /// Adds an entry to the given notification center's dispatch table for this notification name, with a block to add to the queue, and an optional sender.
     /// - Warning: The `block` closure has an extra parameter of guaranteed type `T`. If a notification with this name is posted using the standard `NotificationCenter` functions you must ensure the type of the sender object is also of type `T` or you will encounter fatal errors. To avoid this issue you should use the special type-safe `post(object:)` and `postOnMainQueue(object:)` functions on `Notification.Name.TypeSafe`.
@@ -60,7 +60,7 @@ extension Notification.Name.TypeSafe
     }
 }
 
-extension Notification.Name.TypeSafe where T: ExpressibleByNilLiteral
+public extension Notification.Name.TypeSafe where T: ExpressibleByNilLiteral
 {
     /// Creates a notification with this name and posts it to the given notification center on the current dispatch queue.
     func post(to center: NotificationCenter = .default)
