@@ -1,15 +1,15 @@
-####SwiftyNotifications####
-######Swift helpers around Foundation's Notification.Name######
+## SwiftyNotifications
+##### Swift helpers around Foundation's Notification.Name
 
 SwiftyNotifications is an easy way to work with `Notification.Name` in Swift.
 
-######Usage######
+### Usage
 Notification name objects can be created with string literals:
 ```swift
 let somethingDidChange: Notification.Name = "SomethingChanged"
 ```
 
-*Add observers* using block syntax...
+**Add observers** using block syntax...
 
 ```swift
 somethingDidChange.addObserver() { notification in
@@ -24,7 +24,7 @@ somethingDidChange.addObserver() { notification in
 somethingDidChange.addObserver(self, selector: #selector(somethingDidChange))
 ```
 
-*Post notifications* thusly:
+**Post notifications** thusly:
 
 ```swift
 somethingDidChange.post()
@@ -37,7 +37,7 @@ let aCenter = NotificationCenter()
 somethingDidChange.post(to: aCenter)
 ```
 
-A *type-safe generic type* with identical syntax is available when using sender objects:
+A **type-safe generic type** with identical syntax is available when using sender objects:
 
 ```swift
 let boolDidChange: Notification.Name.TypeSafe<Bool> = "BoolChanged"
