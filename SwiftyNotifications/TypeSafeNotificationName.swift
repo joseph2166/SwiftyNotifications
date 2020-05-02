@@ -30,7 +30,7 @@ public extension Notification.Name.TypeSafe
 {
     /// Adds an entry to the given notification center's dispatch table for this notification name, with a block to add to the queue, and an optional sender.
     /// - Warning: The `block` closure has an extra parameter of guaranteed type `T`. If a notification with this name is posted using the standard `NotificationCenter` functions you must ensure the type of the sender object is also of type `T` or you will encounter fatal errors. To avoid this issue you should use the special type-safe `post(object:)` and `postOnMainQueue(object:)` functions on `Notification.Name.TypeSafe`.
-    @discardableResult func addObserver(object anObject: T?, queue: OperationQueue? = nil, center: NotificationCenter = .default, using block: @escaping (Notification, T) -> Void) -> NSObjectProtocol?
+    @discardableResult func addObserver(object anObject: T? = nil, queue: OperationQueue? = nil, center: NotificationCenter = .default, using block: @escaping (Notification, T) -> Void) -> NSObjectProtocol?
     {
         let observer = center.addObserver(forName: self.underlyingName, object: anObject, queue: queue) { notification in
             block(notification, notification.object as! T)
