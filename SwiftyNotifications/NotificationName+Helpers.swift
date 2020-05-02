@@ -21,6 +21,12 @@ public extension Notification.Name
         center.addObserver(forName: self, object: anObject, queue: queue, using: block)
     }
     
+    /// Removes matching entries from the notification center's dispatch table.
+    func removeObserver(_ observer: Any, object: Any? = nil, center: NotificationCenter = .default)
+    {
+        center.removeObserver(observer, name: self, object: object)
+    }
+    
     /// Creates a notification with this name and the given sender and posts it to the given notification center on the current dispatch queue.
     func post(object anObject: Any? = nil, to center: NotificationCenter = .default)
     {
