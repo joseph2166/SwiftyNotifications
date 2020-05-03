@@ -40,7 +40,7 @@ somethingDidChange.post(to: aCenter)
 A **type-safe generic type** with identical syntax is available when using sender objects:
 
 ```swift
-let boolDidChange: Notification.Name.TypeSafe<Bool> = "BoolChanged"
+let boolDidChange: Notification.TypeSafeName<Bool> = "BoolChanged"
 
 boolDidChange.post(true) // Must send a Bool
 
