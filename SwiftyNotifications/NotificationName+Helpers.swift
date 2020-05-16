@@ -33,12 +33,12 @@ public extension Notification.Name
         center.post(name: self, object: anObject)
     }
     
-    /// Creates a notification with this name and the given sender and posts it to the given notification center synchronously on the main dispatch queue.
+    /// Creates a notification with this name and the given sender and posts it to the given notification center asynchronously on the main dispatch queue.
     func postOnMainQueue(object anObject: Any? = nil, to center: NotificationCenter = .default)
     {
-        DispatchQueue.main.sync
+        DispatchQueue.main.async
         {
-            self.post(object: anObject, to: center)
+                self.post(object: anObject, to: center)
         }
     }
 }
