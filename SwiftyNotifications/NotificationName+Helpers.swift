@@ -38,7 +38,7 @@ public extension Notification.Name
     {
         DispatchQueue.main.async
         {
-                self.post(object: anObject, to: center)
+            self.post(object: anObject, to: center)
         }
     }
 }
