@@ -7,6 +7,11 @@
 
 import Foundation
 
+public extension Notification
+{
+    typealias Block = (Notification) -> Void
+}
+
 public extension Notification.Name
 {
     /// Adds an entry to the given notification center's dispatch table for this notification name, with an observer and a notification selector and an optional sender.
@@ -16,7 +21,7 @@ public extension Notification.Name
     }
     
     /// Adds an entry to the given notification center's dispatch table for this notification name, with a block to add to the queue, and an optional sender.
-    @discardableResult func addObserver(object anObject: Any? = nil, queue: OperationQueue? = nil, center: NotificationCenter = .default, using block: @escaping (Notification) -> Void) -> NSObjectProtocol
+    @discardableResult func addObserver(object anObject: Any? = nil, queue: OperationQueue? = nil, center: NotificationCenter = .default, using block: @escaping Notification.Block) -> NSObjectProtocol
     {
         center.addObserver(forName: self, object: anObject, queue: queue, using: block)
     }
