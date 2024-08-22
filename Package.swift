@@ -1,13 +1,9 @@
-// swift-tools-version:5.3
+// swift-tools-version:5.10
 
 import PackageDescription
 
 let package = Package(
     name: "SwiftyNotifications",
-    platforms: [.macOS(.v10_10),
-                .iOS(.v9),
-                .tvOS(.v9),
-                .watchOS(.v2)],
     products: [
         .library(name: "SwiftyNotifications", targets: ["SwiftyNotifications"])
     ],
