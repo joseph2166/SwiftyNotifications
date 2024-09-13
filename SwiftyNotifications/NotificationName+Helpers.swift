@@ -9,7 +9,7 @@ import Foundation
 
 public extension Notification
 {
-    typealias Block = (Notification) -> Void
+    typealias Block = @Sendable (Notification) -> Void
 }
 
 public extension Notification.Name
@@ -38,17 +38,17 @@ public extension Notification.Name
         center.post(name: self, object: anObject)
     }
     
-    /// Creates a notification with this name and the given sender and posts it to the given notification center asynchronously on the main dispatch queue.
-    func postOnMainQueue(object anObject: Any? = nil, to center: NotificationCenter = .default)
+    /// Creates a notification with this name and the given sender and posts it to the default notification center asynchronously on the main dispatch queue.
+    @available(iOS 13.0, *)
+    func postOnMainQueue(object anObject: Sendable? = nil)
     {
-        DispatchQueue.main.async
-        {
-            self.post(object: anObject, to: center)
+        Task { @MainActor in
+            self.post(object: anObject)
         }
     }
 }
 
-extension Notification.Name: ExpressibleByStringLiteral
+extension Notification.Name: @retroactive ExpressibleByStringLiteral
 {
     public typealias StringLiteralType = String
     
