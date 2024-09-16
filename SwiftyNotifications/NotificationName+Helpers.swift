@@ -1,8 +1,6 @@
 //
 //  NotificationName+Helpers.swift
-//  SwiftyNotifications
-//  Created by Joe Thomson on 02/05/2020.
-//  Copyright © 2020 Joe Thomson. All rights reserved.
+//  Copyright © 2024 Joe Thomson. All rights reserved.
 //
 
 import Foundation
@@ -14,37 +12,22 @@ public extension Notification
 
 public extension Notification.Name
 {
-    /// Adds an entry to the given notification center's dispatch table for this notification name, with an observer and a notification selector and an optional sender.
-    func addObserver(_ observer: Any, selector aSelector: Selector, object anObject: Any? = nil, center: NotificationCenter = .default)
+    /// Adds an entry to the default notification center's dispatch table for this notification name, with a block that will run on the main thread.
+    @discardableResult func addObserver(using block: @escaping Notification.Block) -> NSObjectProtocol
     {
-        center.addObserver(observer, selector: aSelector, name: self, object: anObject)
+        NotificationCenter.default.addObserver(forName: self, object: nil, queue: .main, using: block)
     }
     
-    /// Adds an entry to the given notification center's dispatch table for this notification name, with a block to add to the queue, and an optional sender.
-    @discardableResult func addObserver(object anObject: Any? = nil, queue: OperationQueue? = nil, center: NotificationCenter = .default, using block: @escaping Notification.Block) -> NSObjectProtocol
+    /// Removes matching entries from the default notification center's dispatch table.
+    func removeObserver(_ observer: NSObjectProtocol)
     {
-        center.addObserver(forName: self, object: anObject, queue: queue, using: block)
+        NotificationCenter.default.removeObserver(observer, name: self, object: nil)
     }
     
-    /// Removes matching entries from the notification center's dispatch table.
-    func removeObserver(_ observer: Any, object: Any? = nil, center: NotificationCenter = .default)
+    /// Creates a notification with this name and the given object and posts it to the default notification center on the main dispatch queue.
+    func post()
     {
-        center.removeObserver(observer, name: self, object: object)
-    }
-    
-    /// Creates a notification with this name and the given sender and posts it to the given notification center on the current dispatch queue.
-    func post(object anObject: Any? = nil, to center: NotificationCenter = .default)
-    {
-        center.post(name: self, object: anObject)
-    }
-    
-    /// Creates a notification with this name and the given sender and posts it to the default notification center asynchronously on the main dispatch queue.
-    @available(iOS 13.0, *)
-    func postOnMainQueue(object anObject: Sendable? = nil)
-    {
-        Task { @MainActor in
-            self.post(object: anObject)
-        }
+        NotificationCenter.default.post(name: self, object: nil)
     }
 }
 

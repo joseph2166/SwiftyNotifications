@@ -1,8 +1,6 @@
 //
 //  TypeSafeNotificationName.swift
-//  SwiftyNotifications
-//  Created by Joe Thomson on 02/05/2020.
-//  Copyright © 2020 Joe Thomson. All rights reserved.
+//  Copyright © 2024 Joe Thomson. All rights reserved.
 //
 
 import Foundation
@@ -10,17 +8,17 @@ import Foundation
 extension Notification
 {
     /// A wrapper around `Notification.Name`, with additional functions to guarantee the resulting notification's object type.
-    public struct TypeSafeName<T>: Hashable, Equatable, RawRepresentable
+    public struct TypeSafeName<T>: Hashable, Equatable, RawRepresentable, Sendable
     {
-        public typealias RawValue = String
-        public let rawValue: String
+        public typealias Block = @Sendable (Notification, T) -> Void
         
-        /// The underlying `Notification.Name` object represented by this `TypeSafe` object.
-        public let underlyingName: Notification.Name
+        /// The underlying `Notification.Name` object represented by this `TypeSafeName` struct.
+        private let underlyingName: Notification.Name
+        
+        public var rawValue: String { self.underlyingName.rawValue }
         
         public init(rawValue: String)
         {
-            self.rawValue = rawValue
             self.underlyingName = Notification.Name(rawValue)
         }
     }
@@ -28,48 +26,33 @@ extension Notification
 
 public extension Notification.TypeSafeName
 {
-    /// Adds an entry to the given notification center's dispatch table for this notification name, with a block to add to the queue, and an optional sender.
-    /// - Warning: The `block` closure has an extra parameter of guaranteed type `T`. If a notification with this name is posted using the standard `NotificationCenter` functions you must ensure the type of the sender object is also of type `T` or you will encounter fatal errors. To avoid this issue you should use the special type-safe `post(object:)` and `postOnMainQueue(object:)` functions on `Notification.TypeSafeName`.
-    @discardableResult func addObserver(object anObject: T? = nil, queue: OperationQueue? = nil, center: NotificationCenter = .default, using block: @escaping @Sendable (Notification, T) -> Void) -> NSObjectProtocol?
+    /// Adds an entry to the default notification center's dispatch table for this notification name, with a block that will run on the main thread.
+    @discardableResult func addObserver(using block: @escaping Block) -> NSObjectProtocol?
     {
-        let observer = center.addObserver(forName: self.underlyingName, object: anObject, queue: queue) { notification in
+        NotificationCenter.default.addObserver(forName: self.underlyingName, object: nil, queue: .main) { notification in
             block(notification, notification.object as! T)
         }
-        return observer
     }
     
-    /// Removes matching entries from the notification center's dispatch table.
-    func removeObserver(_ observer: Any, object: T? = nil, center: NotificationCenter = .default)
+    /// Removes matching entries from the default notification center's dispatch table.
+    func removeObserver(_ observer: NSObjectProtocol)
     {
-        center.removeObserver(observer, name: self.underlyingName, object: object)
+        NotificationCenter.default.removeObserver(observer, name: self.underlyingName, object: nil)
     }
     
-    /// Creates a notification with this name and the given sender and posts it to the given notification center on the current dispatch queue.
-    func post(object anObject: T, to center: NotificationCenter = .default)
+    /// Creates a notification with this name and the given object and posts it to the default notification center on the main dispatch queue.
+    func post(object anObject: T)
     {
-        center.post(name: self.underlyingName, object: anObject)
-    }
-}
-
-extension Notification.TypeSafeName: Sendable where T: Sendable
-{
-    /// Creates a notification with this name and the given sender and posts it to the default notification center asynchronously on the main dispatch queue.
-    @available(iOS 13.0, *)
-    func postOnMainQueue(object anObject: T)
-    {
-        Task { @MainActor in
-            self.post(object: anObject)
-        }
+        NotificationCenter.default.post(name: self.underlyingName, object: anObject)
     }
 }
 
 public extension Notification.TypeSafeName where T: ExpressibleByNilLiteral
 {
-    /// Adds an entry to the given notification center's dispatch table for this notification name, with a block to add to the queue, and an optional sender.
-    /// - Warning: The `block` closure has an extra parameter of guaranteed type `T`. If a notification with this name is posted using the standard `NotificationCenter` functions you must ensure the type of the sender object is also of type `T` or you will encounter fatal errors. To avoid this issue you should use the special type-safe `post(object:)` and `postOnMainQueue(object:)` functions on `Notification.TypeSafeName`.
-    @discardableResult func addObserver(object anObject: T? = nil, queue: OperationQueue? = nil, center: NotificationCenter = .default, using block: @escaping @Sendable (Notification, T) -> Void) -> NSObjectProtocol?
+    /// Adds an entry to the default notification center's dispatch table for this notification name, with a block that will run on the main thread.
+    @discardableResult func addObserver(using block: @escaping @Sendable (Notification, T) -> Void) -> NSObjectProtocol?
     {
-        let observer = center.addObserver(forName: self.underlyingName, object: anObject, queue: queue) { notification in
+        NotificationCenter.default.addObserver(forName: self.underlyingName, object: nil, queue: .main) { notification in
             if let object = notification.object, object is NSNull == false
             {
                 block(notification, object as! T)
@@ -79,13 +62,12 @@ public extension Notification.TypeSafeName where T: ExpressibleByNilLiteral
                 block(notification, nil)
             }
         }
-        return observer
     }
     
-    /// Creates a notification with this name and posts it to the given notification center on the current dispatch queue.
-    func post(to center: NotificationCenter = .default)
+    /// Creates a notification with this name and posts it to the default notification center on the main dispatch queue.
+    func post()
     {
-        self.post(object: nil, to: center)
+        self.post(object: nil)
     }
 }
 
