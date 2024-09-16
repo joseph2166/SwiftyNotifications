@@ -8,6 +8,7 @@ import Foundation
 public extension Notification
 {
     typealias Block = @Sendable (Notification) -> Void
+    typealias AsyncBlock = @MainActor @Sendable (Notification.Name) async -> Void
 }
 
 public extension Notification.Name
@@ -15,7 +16,19 @@ public extension Notification.Name
     /// Adds an entry to the default notification center's dispatch table for this notification name, with a block that will run on the main thread.
     @discardableResult func addObserver(using block: @escaping Notification.Block) -> NSObjectProtocol
     {
-        NotificationCenter.default.addObserver(forName: self, object: nil, queue: .main, using: block)
+        NotificationCenter.default.addObserver(forName: self, object: nil, queue: .main) { notification in
+            block(notification)
+        }
+    }
+    
+    /// Adds an entry to the default notification center's dispatch table for this notification name, with a block that will run on the main actor.
+    @discardableResult func addAsyncObserver(using block: @escaping Notification.AsyncBlock) -> NSObjectProtocol
+    {
+        NotificationCenter.default.addObserver(forName: self, object: nil, queue: .main) { notification in
+            Task { @MainActor in
+                await block(self)
+            }
+        }
     }
     
     /// Removes matching entries from the default notification center's dispatch table.

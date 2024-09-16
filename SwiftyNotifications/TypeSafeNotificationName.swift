@@ -47,10 +47,26 @@ public extension Notification.TypeSafeName
     }
 }
 
+public extension Notification.TypeSafeName where T: Sendable
+{
+    typealias AsyncBlock = @MainActor @Sendable (Notification.TypeSafeName<T>, T) async -> Void
+    
+    /// Adds an entry to the default notification center's dispatch table for this notification name, with a block that will run on the main actor.
+    @discardableResult func addAsyncObserver(using block: @escaping AsyncBlock) -> NSObjectProtocol
+    {
+        NotificationCenter.default.addObserver(forName: self.underlyingName, object: nil, queue: .main) { notification in
+            let sendableObject = notification.object as! T
+            Task { @MainActor in
+                await block(self, sendableObject)
+            }
+        }
+    }
+}
+
 public extension Notification.TypeSafeName where T: ExpressibleByNilLiteral
 {
     /// Adds an entry to the default notification center's dispatch table for this notification name, with a block that will run on the main thread.
-    @discardableResult func addObserver(using block: @escaping @Sendable (Notification, T) -> Void) -> NSObjectProtocol?
+    @discardableResult func addObserver(using block: @escaping Block) -> NSObjectProtocol?
     {
         NotificationCenter.default.addObserver(forName: self.underlyingName, object: nil, queue: .main) { notification in
             if let object = notification.object, object is NSNull == false
@@ -68,6 +84,29 @@ public extension Notification.TypeSafeName where T: ExpressibleByNilLiteral
     func post()
     {
         self.post(object: nil)
+    }
+}
+
+public extension Notification.TypeSafeName where T: ExpressibleByNilLiteral & Sendable
+{
+    /// Adds an entry to the default notification center's dispatch table for this notification name, with a block that will run on the main actor.
+    @discardableResult func addObserver(using block: @escaping AsyncBlock) -> NSObjectProtocol?
+    {
+        NotificationCenter.default.addObserver(forName: self.underlyingName, object: nil, queue: .main) { notification in
+            if let object = notification.object, object is NSNull == false
+            {
+                let sendableObject = object as! T
+                Task { @MainActor in
+                    await block(self, sendableObject)
+                }
+            }
+            else
+            {
+                Task { @MainActor in
+                    await block(self, nil)
+                }
+            }
+        }
     }
 }
 
