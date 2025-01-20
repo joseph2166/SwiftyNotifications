@@ -38,9 +38,9 @@ public extension Notification.Name
     }
     
     /// Creates a notification with this name and the given object and posts it to the default notification center on the main dispatch queue.
-    func post()
+    func post(object: Any? = nil)
     {
-        NotificationCenter.default.post(name: self, object: nil)
+        NotificationCenter.default.post(name: self, object: object)
     }
 }
 
