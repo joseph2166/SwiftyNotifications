@@ -27,7 +27,7 @@ extension Notification
 public extension Notification.TypeSafeName
 {
     /// Adds an entry to the default notification center's dispatch table for this notification name, with a block that will run on the main thread.
-    @discardableResult func addObserver(using block: @escaping Block) -> NSObjectProtocol?
+    @discardableResult func addObserver(using block: @escaping Block) -> any NSObjectProtocol
     {
         NotificationCenter.default.addObserver(forName: self.underlyingName, object: nil, queue: .main) { notification in
             block(notification, notification.object as! T)
@@ -35,7 +35,7 @@ public extension Notification.TypeSafeName
     }
     
     /// Removes matching entries from the default notification center's dispatch table.
-    func removeObserver(_ observer: NSObjectProtocol)
+    func removeObserver(_ observer: Any)
     {
         NotificationCenter.default.removeObserver(observer, name: self.underlyingName, object: nil)
     }
@@ -52,7 +52,7 @@ public extension Notification.TypeSafeName where T: Sendable
     typealias AsyncBlock = @MainActor @Sendable (Notification.TypeSafeName<T>, T) async -> Void
     
     /// Adds an entry to the default notification center's dispatch table for this notification name, with a block that will run on the main actor.
-    @discardableResult func addAsyncObserver(using block: @escaping AsyncBlock) -> NSObjectProtocol
+    @discardableResult func addAsyncObserver(using block: @escaping AsyncBlock) -> any NSObjectProtocol
     {
         NotificationCenter.default.addObserver(forName: self.underlyingName, object: nil, queue: .main) { notification in
             let sendableObject = notification.object as! T
@@ -66,7 +66,7 @@ public extension Notification.TypeSafeName where T: Sendable
 public extension Notification.TypeSafeName where T: ExpressibleByNilLiteral
 {
     /// Adds an entry to the default notification center's dispatch table for this notification name, with a block that will run on the main thread.
-    @discardableResult func addObserver(using block: @escaping Block) -> NSObjectProtocol?
+    @discardableResult func addObserver(using block: @escaping Block) -> any NSObjectProtocol
     {
         NotificationCenter.default.addObserver(forName: self.underlyingName, object: nil, queue: .main) { notification in
             if let object = notification.object, object is NSNull == false
@@ -90,7 +90,7 @@ public extension Notification.TypeSafeName where T: ExpressibleByNilLiteral
 public extension Notification.TypeSafeName where T: ExpressibleByNilLiteral & Sendable
 {
     /// Adds an entry to the default notification center's dispatch table for this notification name, with a block that will run on the main actor.
-    @discardableResult func addObserver(using block: @escaping AsyncBlock) -> NSObjectProtocol?
+    @discardableResult func addObserver(using block: @escaping AsyncBlock) -> any NSObjectProtocol
     {
         NotificationCenter.default.addObserver(forName: self.underlyingName, object: nil, queue: .main) { notification in
             if let object = notification.object, object is NSNull == false
